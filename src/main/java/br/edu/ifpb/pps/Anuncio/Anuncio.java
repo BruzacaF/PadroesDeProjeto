@@ -1,73 +1,97 @@
 package br.edu.ifpb.pps.Anuncio;
 
 import br.edu.ifpb.pps.Anuncio.Estados.Rascunho;
+import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
+
+import br.edu.ifpb.pps.Logger.LoggerAnuncio;
 import br.edu.ifpb.pps.Notificacao.NotificacaoObserver;
-import br.edu.ifpb.pps.Usuario.Usuario;
+
 import br.edu.ifpb.pps.Usuario.tiposUsuario.Anunciante;
 import br.edu.ifpb.pps.imovel.Imovel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Anuncio {
     private String titulo;
+    private String descricao;
+    private Double preco;
+    private List<String> imagens;
     private Imovel imovel;
-    private Usuario anunciante;
+    private Anunciante anunciante;
     private EstadoAnuncio estado;
-    private List<NotificacaoObserver> observadores = new ArrayList<>();
+    private EstadoAnuncioEnum estadoEnum;
+    private List<NotificacaoObserver> observers = new ArrayList<>();
 
-    public Anuncio(String titulo, Imovel imovel, Anunciante anunciante) {
+    public Anuncio(String titulo, String descricao, Imovel imovel, Anunciante anunciante, Double preco) {
         this.titulo = titulo;
+        this.descricao = descricao;
+        this.preco = preco;
+        this.imagens = new ArrayList<>();
         this.imovel = imovel;
         this.anunciante = anunciante;
-        this.estado = new Rascunho();
+        this.estado = new Rascunho(); // estado inicial
+        this.estadoEnum = EstadoAnuncioEnum.RASCUNHO;
     }
 
-    public void adicionarObservador(NotificacaoObserver obs) {
-        observadores.add(obs);
+    public String getTitulo() { return titulo; }
+    public String getDescricao() { return descricao; }
+    public Imovel getImovel() { return imovel; }
+    public Double getPreco() { return preco; }
+    public Anunciante getAnunciante() { return anunciante; }
+    public EstadoAnuncioEnum getEstadoEnum() { return estadoEnum; }
+
+    public void adicionarObserver(NotificacaoObserver observer) {
+        observers.add(observer);
     }
 
-    public void notificar(String mensagem) {
-        for (NotificacaoObserver obs : observadores) {
+    public void setEstado(EstadoAnuncio novoEstado, EstadoAnuncioEnum novoEnum) {
+        this.estado = novoEstado;
+        this.estadoEnum = novoEnum;
+        notificar("Estado do anúncio '" + titulo + "' alterado para: " + novoEnum);
+        LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + novoEnum);
+    }
+
+    private void notificar(String mensagem) {
+        for (NotificacaoObserver obs : observers) {
             obs.atualizar(mensagem);
         }
     }
 
-    public void setEstado(EstadoAnuncio estado) {
-        this.estado = estado;
-        notificar("Estado do anúncio '" + titulo + "' mudou para: " + estado.getClass().getSimpleName());
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
+    // Delegação para o estado atual
+    public void enviarParaModeracao() { estado.enviarParaModeracao(this); }
+    public void aprovar() { estado.aprovar(this); }
+    public void reprovar() { estado.reprovar(this); }
     public void publicar() { estado.publicar(this); }
-    public void moderar() { estado.moderar(this); }
     public void vender() { estado.vender(this); }
     public void suspender() { estado.suspender(this); }
 
-    public EstadoAnuncio getEstado() {
-        return estado;
+    public void adicionarFoto(String image) {
+        this.imagens.add(image);
     }
 
 
-    // TESTE DE BANNER PARA VISUALIZAR
-    public void imprimirBanner() {
-        System.out.println("========================================");
-        System.out.println("🏠 ANÚNCIO: " + titulo.toUpperCase());
-        System.out.println("----------------------------------------");
-        System.out.println("📌 Tipo de Imóvel: " + imovel.getClass().getSimpleName());
-        System.out.println("💰 Preço: R$ " + imovel.preco);
-        System.out.println("👤 Anunciante: " + anunciante.getNome());
-        System.out.println("📢 Estado: " + estado.getClass().getSimpleName());
-        System.out.println("----------------------------------------");
-        imovel.exibirDetalhes(); // imprime detalhes específicos do imóvel
-        System.out.println("========================================\n");
-    }
+    public void exibirDetalhes() {
+        System.out.println("=== Detalhes do Anúncio ===");
+        System.out.println("Título: " + titulo);
+        System.out.println("Descrição: " + descricao);
+        System.out.println("Preço: " + preco);
+        System.out.println("Estado atual: " + estadoEnum);
+        System.out.println("Anunciante: " + anunciante.getNome()); // supondo que Anunciante tenha getNome()
 
-    public Imovel getImovel() {
-        return imovel;
+        System.out.println("\n--- Imóvel ---");
+        imovel.exibirDetalhes(); // delega para o imóvel
+
+        System.out.println("\n--- Fotos ---");
+        if (imagens.isEmpty()) {
+            System.out.println("Nenhuma foto adicionada.");
+        } else {
+            for (String img : imagens) {
+                System.out.println("Foto: " + img);
+            }
+        }
+
+        System.out.println("============================");
     }
 }
-

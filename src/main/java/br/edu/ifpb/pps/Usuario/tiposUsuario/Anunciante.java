@@ -8,11 +8,9 @@ public class Anunciante extends Usuario {
 
     private final CatalogoPrototiposImovel catalogo = new CatalogoPrototiposImovel();
 
-
     public Anunciante(String nome) {
         super(nome, UsuarioTipo.ANUNCIANTE);
     }
-
 
     public CatalogoPrototiposImovel getCatalogo() {
         return catalogo;

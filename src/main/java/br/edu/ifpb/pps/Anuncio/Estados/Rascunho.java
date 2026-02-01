@@ -5,27 +5,19 @@ import br.edu.ifpb.pps.Anuncio.EstadoAnuncio;
 import br.edu.ifpb.pps.Anuncio.Moderador;
 import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 
-public class Rascunho implements EstadoAnuncio {
+public class Rascunho extends EstadoAnuncio {
 
-    @Override
-    public void enviarParaModeracao(Anuncio anuncio) {
-        // Muda para estado de Moderação e inicia o processo
-        anuncio.setEstado(new Moderacao(), EstadoAnuncioEnum.EM_MODERACAO);
-        
-        // Inicia a moderação automática
-        Moderador moderador = Moderador.getInstancia();
-        boolean aprovado = moderador.moderar(anuncio);
-
-        if (aprovado) {
-            anuncio.aprovar();
-        } else {
-            anuncio.reprovar();
-        }
+    public Rascunho() {
+        this.setEstadoAnuncioEnum(EstadoAnuncioEnum.RASCUNHO);
     }
 
-    public void aprovar(Anuncio anuncio) {}
-    public void reprovar(Anuncio anuncio) {}
-    public void publicar(Anuncio anuncio) {}
-    public void vender(Anuncio anuncio) {}
-    public void suspender(Anuncio anuncio) {}
+    @Override
+    public void publicar() {
+        super.anuncioContext.setEstado(new Moderacao(super.anuncioContext));
+    }
+
+    public void aprovar() {}
+    public void reprovar() {}
+    public void vender() {}
+    public void suspender() {}
 }

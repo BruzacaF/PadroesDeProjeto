@@ -87,7 +87,7 @@ public class Main {
         anuncioOriginal.adicionarObserver(observerMultiplo);
         
         System.out.println("\n=== Testando notificações com 2 observers ===");
-        anuncioOriginal.enviarParaModeracao();
+        anuncioOriginal.publicar();
         
         // Remover strategy de WhatsApp do segundo observer
         System.out.println("\n=== Removendo WhatsApp do observer múltiplo ===");

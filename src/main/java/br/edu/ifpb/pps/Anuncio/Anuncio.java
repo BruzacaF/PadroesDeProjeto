@@ -21,7 +21,6 @@ public class Anuncio {
     private Imovel imovel;
     private Anunciante anunciante;
     private EstadoAnuncio estado;
-    private EstadoAnuncioEnum estadoEnum;
     private List<NotificacaoObserver> observers = new ArrayList<>();
 
     public Anuncio(String titulo, String descricao, Imovel imovel, Anunciante anunciante, Double preco) {
@@ -31,8 +30,8 @@ public class Anuncio {
         this.imagens = new ArrayList<>();
         this.imovel = imovel;
         this.anunciante = anunciante;
-        this.estado = new Rascunho(); // estado inicial
-        this.estadoEnum = EstadoAnuncioEnum.RASCUNHO;
+        this.estado = new Rascunho();
+        this.estado.setAnuncioContext(this);
     }
 
     public String getTitulo() { return titulo; }
@@ -40,17 +39,16 @@ public class Anuncio {
     public Imovel getImovel() { return imovel; }
     public Double getPreco() { return preco; }
     public Anunciante getAnunciante() { return anunciante; }
-    public EstadoAnuncioEnum getEstadoEnum() { return estadoEnum; }
 
     public void adicionarObserver(NotificacaoObserver observer) {
         observers.add(observer);
     }
 
-    public void setEstado(EstadoAnuncio novoEstado, EstadoAnuncioEnum novoEnum) {
+    public void setEstado(EstadoAnuncio novoEstado) {
         this.estado = novoEstado;
-        this.estadoEnum = novoEnum;
-        notificarTodos("Estado do anúncio '" + titulo + "' alterado para: " + novoEnum);
-        LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + novoEnum);
+        this.estado.setAnuncioContext(this);
+        notificarTodos("Estado do anúncio '" + titulo + "' alterado para: " + estado.getEstadoAnuncioEnum());
+        LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + estado.getEstadoAnuncioEnum());
     }
 
     private void notificarTodos(String mensagem) {
@@ -60,12 +58,11 @@ public class Anuncio {
     }
 
     // Delegação para o estado atual
-    public void enviarParaModeracao() { estado.enviarParaModeracao(this); }
-    public void aprovar() { estado.aprovar(this); }
-    public void reprovar() { estado.reprovar(this); }
-    public void publicar() { estado.publicar(this); }
-    public void vender() { estado.vender(this); }
-    public void suspender() { estado.suspender(this); }
+    public void aprovar() { estado.aprovar(); }
+    public void reprovar() { estado.reprovar(); }
+    public void publicar() { estado.publicar(); }
+    public void vender() { estado.vender(); }
+    public void suspender() { estado.suspender(); }
 
     public void adicionarFoto(String image) {
         this.imagens.add(image);
@@ -77,7 +74,7 @@ public class Anuncio {
         System.out.println("Título: " + titulo);
         System.out.println("Descrição: " + descricao);
         System.out.println("Preço: " + preco);
-        System.out.println("Estado atual: " + estadoEnum);
+        System.out.println("Estado atual: " + estado.getEstadoAnuncioEnum());
         System.out.println("Anunciante: " + anunciante.getNome()); // supondo que Anunciante tenha getNome()
 
         System.out.println("\n--- Imóvel ---");

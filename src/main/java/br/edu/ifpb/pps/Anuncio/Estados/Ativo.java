@@ -5,21 +5,23 @@ import br.edu.ifpb.pps.Anuncio.EstadoAnuncio;
 import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 import br.edu.ifpb.pps.repository.AnuncioRepository;
 
-public class Ativo implements EstadoAnuncio {
-    @Override
-    public void vender(Anuncio anuncio) {
-        // Imóvel vendido: estado final
-        anuncio.setEstado(new Vendido(), EstadoAnuncioEnum.VENDIDO);
+public class Ativo extends EstadoAnuncio {
+
+    public Ativo() {
+        super.setEstadoAnuncioEnum(EstadoAnuncioEnum.ATIVO);
     }
 
     @Override
-    public void suspender(Anuncio anuncio) {
-        // Suspender anúncio ativo (retirado pelo usuário)
-        anuncio.setEstado(new Suspenso(), EstadoAnuncioEnum.SUSPENSO);
+    public void vender() {
+        super.anuncioContext.setEstado(new Vendido());
     }
 
-    public void enviarParaModeracao(Anuncio anuncio) {}
-    public void aprovar(Anuncio anuncio) {}
-    public void reprovar(Anuncio anuncio) {}
-    public void publicar(Anuncio anuncio) {}
+    @Override
+    public void suspender() {
+        super.anuncioContext.setEstado(new Suspenso());
+    }
+
+    public void aprovar() {}
+    public void reprovar() {}
+    public void publicar() {}
 }

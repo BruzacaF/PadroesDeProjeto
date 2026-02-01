@@ -7,10 +7,8 @@ import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 
 public class Moderacao extends EstadoAnuncio {
 
-    public Moderacao(Anuncio anuncio) {
+    public Moderacao() {
         super.setEstadoAnuncioEnum(EstadoAnuncioEnum.EM_MODERACAO);
-        super.setAnuncioContext(anuncio);
-        checagemAutomatica();
     }
 
     @Override
@@ -23,7 +21,7 @@ public class Moderacao extends EstadoAnuncio {
         super.anuncioContext.setEstado(new Suspenso());
     }
 
-    void checagemAutomatica(){
+    public void checagemAutomatica(){
         Moderador moderador = Moderador.getInstancia();
         boolean aprovado = moderador.moderarManual(super.anuncioContext);
         if (aprovado) {

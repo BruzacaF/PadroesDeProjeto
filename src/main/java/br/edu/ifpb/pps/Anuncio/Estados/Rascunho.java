@@ -13,7 +13,9 @@ public class Rascunho extends EstadoAnuncio {
 
     @Override
     public void publicar() {
-        super.anuncioContext.setEstado(new Moderacao(super.anuncioContext));
+        Moderacao estadoAnuncio = new Moderacao();
+        super.anuncioContext.setEstado(estadoAnuncio);
+        estadoAnuncio.checagemAutomatica();
     }
 
     public void aprovar() {}

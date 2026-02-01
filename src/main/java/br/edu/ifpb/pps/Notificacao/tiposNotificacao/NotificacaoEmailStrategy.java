@@ -1,11 +1,11 @@
 package br.edu.ifpb.pps.Notificacao.tiposNotificacao;
 
-import br.edu.ifpb.pps.Notificacao.NotificacaoObserverStrategy;
+import br.edu.ifpb.pps.Notificacao.NotificacaoStrategy;
 
-public class NotificacaoEmailObserverStrategy extends NotificacaoObserverStrategy {
+public class NotificacaoEmailStrategy implements NotificacaoStrategy {
     private String email;
 
-    public NotificacaoEmailObserverStrategy(String email) {
+    public NotificacaoEmailStrategy(String email) {
         this.email = email;
     }
 

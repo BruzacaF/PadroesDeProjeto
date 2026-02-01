@@ -1,11 +1,11 @@
 package br.edu.ifpb.pps.Notificacao.tiposNotificacao;
 
-import br.edu.ifpb.pps.Notificacao.NotificacaoObserverStrategy;
+import br.edu.ifpb.pps.Notificacao.NotificacaoStrategy;
 
-public class NotificacaoWhatsAppObserverStrategy extends NotificacaoObserverStrategy {
+public class NotificacaoWhatsAppStrategy implements NotificacaoStrategy {
     private String numero;
 
-    public NotificacaoWhatsAppObserverStrategy(String numero) {
+    public NotificacaoWhatsAppStrategy(String numero) {
         this.numero = numero;
     }
 

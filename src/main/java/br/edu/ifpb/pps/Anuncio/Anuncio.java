@@ -49,13 +49,13 @@ public class Anuncio {
     public void setEstado(EstadoAnuncio novoEstado, EstadoAnuncioEnum novoEnum) {
         this.estado = novoEstado;
         this.estadoEnum = novoEnum;
-        notificar("Estado do anúncio '" + titulo + "' alterado para: " + novoEnum);
+        notificarTodos("Estado do anúncio '" + titulo + "' alterado para: " + novoEnum);
         LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + novoEnum);
     }
 
-    private void notificar(String mensagem) {
+    private void notificarTodos(String mensagem) {
         for (NotificacaoObserver obs : observers) {
-            obs.atualizar(mensagem);
+            obs.notificar(mensagem);
         }
     }
 

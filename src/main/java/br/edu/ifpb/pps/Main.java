@@ -3,17 +3,18 @@ package br.edu.ifpb.pps;
 import br.edu.ifpb.pps.Anuncio.Anuncio;
 import br.edu.ifpb.pps.Anuncio.Decorator.Filtro;
 import br.edu.ifpb.pps.Anuncio.Decorator.FiltroBase;
-import br.edu.ifpb.pps.Anuncio.Decorator.FiltroDecorator;
 import br.edu.ifpb.pps.Anuncio.Decorator.Filtros.FiltroPreco;
 import br.edu.ifpb.pps.Enums.ImovelTipo;
+import br.edu.ifpb.pps.Notificacao.NotificacaoObserver;
+import br.edu.ifpb.pps.Notificacao.tiposNotificacao.NotificacaoEmailStrategy;
+import br.edu.ifpb.pps.Notificacao.tiposNotificacao.NotificacaoWhatsAppStrategy;
+import br.edu.ifpb.pps.Notificacao.tiposNotificacao.TipoNotificacao;
 import br.edu.ifpb.pps.Suporte.MotorBusca;
 import br.edu.ifpb.pps.Usuario.tiposUsuario.Anunciante;
-import br.edu.ifpb.pps.imovel.CatalogoGlobalPrototipos;
 import br.edu.ifpb.pps.imovel.DadosImovel;
 import br.edu.ifpb.pps.imovel.Imovel;
 import br.edu.ifpb.pps.imovel.templateMethod.PrototipoTemplateImovel;
 import br.edu.ifpb.pps.imovel.templateMethod.templates.ClonarPrototipoGlobal;
-
 import br.edu.ifpb.pps.imovel.templateMethod.templates.CriarPrototipoDoZero;
 import br.edu.ifpb.pps.repository.AnuncioRepository;
 
@@ -59,7 +60,50 @@ public class Main {
         Anuncio anuncioOriginal = new Anuncio("Anuncio Original", "Anuncio criado com o imovel Original", prototipoAp, usuario, 2000.0);
         Anuncio anuncioClone = new Anuncio("Anuncio Clone", "Anuncio criado com o imovel Clone", apClonado, usuario, 100.0);
 
+        // Inicio - 5) Observer + Strategy
+        
+        // Criar observers
+        NotificacaoObserver observerEmail = new NotificacaoObserver() {};
+        NotificacaoObserver observerMultiplo = new NotificacaoObserver() {};
+        
+        // Adicionar strategies ao primeiro observer (apenas email)
+        observerEmail.adicionarStrategy(
+            TipoNotificacao.EMAIL,
+            new NotificacaoEmailStrategy("anunciante@email.com")
+        );
+        
+        // Adicionar strategies ao segundo observer (email + whatsapp)
+        observerMultiplo.adicionarStrategy(
+            TipoNotificacao.EMAIL, 
+            new NotificacaoEmailStrategy("moderador@email.com")
+        );
+        observerMultiplo.adicionarStrategy(
+            TipoNotificacao.WHATSAPP, 
+            new NotificacaoWhatsAppStrategy("+55 83 99999-9999")
+        );
+        
+        // Registrar observers no anúncio
+        anuncioOriginal.adicionarObserver(observerEmail);
+        anuncioOriginal.adicionarObserver(observerMultiplo);
+        
+        System.out.println("\n=== Testando notificações com 2 observers ===");
+        anuncioOriginal.enviarParaModeracao();
+        
+        // Remover strategy de WhatsApp do segundo observer
+        System.out.println("\n=== Removendo WhatsApp do observer múltiplo ===");
+        observerMultiplo.removerStrategy(TipoNotificacao.WHATSAPP);
+        
+        anuncioOriginal.aprovar();
+        
+        System.out.println("\n=== Adicionando WhatsApp novamente ===");
+        observerMultiplo.adicionarStrategy(
+            TipoNotificacao.WHATSAPP, 
+            new NotificacaoWhatsAppStrategy("+55 83 88888-8888")
+        );
+        
+        anuncioOriginal.publicar();
 
+        // Fim - 5)
 
 
         AnuncioRepository repo = AnuncioRepository.getInstancia();

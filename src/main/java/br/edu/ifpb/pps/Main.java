@@ -69,7 +69,7 @@ public class Main {
         // Adicionar strategies ao primeiro observer (apenas email)
         observerEmail.adicionarStrategy(
             TipoNotificacao.EMAIL,
-            new NotificacaoEmailStrategy("anunciante@email.com")
+            new NotificacaoEmailStrategy("lima.julielison@academico.ifpb.edu.br")
         );
         
         // Adicionar strategies ao segundo observer (email + whatsapp)

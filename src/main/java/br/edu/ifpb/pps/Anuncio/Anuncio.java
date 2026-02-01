@@ -1,6 +1,7 @@
 package br.edu.ifpb.pps.Anuncio;
 
 import br.edu.ifpb.pps.Anuncio.Estados.Rascunho;
+import br.edu.ifpb.pps.Anuncio.Visitor.AnuncioVisitor;
 import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 
 import br.edu.ifpb.pps.Logger.LoggerAnuncio;
@@ -39,6 +40,7 @@ public class Anuncio {
     public Imovel getImovel() { return imovel; }
     public Double getPreco() { return preco; }
     public Anunciante getAnunciante() { return anunciante; }
+    public List<String> getImagens() { return new ArrayList<>(imagens); }
 
     public void adicionarObserver(NotificacaoObserver observer) {
         observers.add(observer);
@@ -70,6 +72,10 @@ public class Anuncio {
 
     public void adicionarFoto(String image) {
         this.imagens.add(image);
+    }
+
+    public void accept(AnuncioVisitor visitor) {
+        visitor.visitar(this);
     }
 
 

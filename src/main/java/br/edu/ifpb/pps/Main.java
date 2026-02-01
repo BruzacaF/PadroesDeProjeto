@@ -4,6 +4,10 @@ import br.edu.ifpb.pps.Anuncio.Anuncio;
 import br.edu.ifpb.pps.Anuncio.Decorator.Filtro;
 import br.edu.ifpb.pps.Anuncio.Decorator.FiltroBase;
 import br.edu.ifpb.pps.Anuncio.Decorator.Filtros.FiltroPreco;
+import br.edu.ifpb.pps.Anuncio.Visitor.AnuncioVisitor;
+import br.edu.ifpb.pps.Anuncio.Visitor.ExportadorJSON;
+import br.edu.ifpb.pps.Anuncio.Visitor.ExportadorPDF;
+import br.edu.ifpb.pps.Anuncio.Visitor.RelatorioEstatistico;
 import br.edu.ifpb.pps.Enums.ImovelTipo;
 import br.edu.ifpb.pps.Notificacao.NotificacaoObserver;
 import br.edu.ifpb.pps.Notificacao.tiposNotificacao.NotificacaoEmailStrategy;
@@ -118,6 +122,53 @@ public class Main {
         for (Anuncio anuncio : anuncios) {
             System.out.println(anuncio.getTitulo());
         }
+
+        // ===== 8) Demonstração do Visitor Pattern =====
+        System.out.println("\n\n=== DEMONSTRAÇÃO DO PADRÃO VISITOR ===\n");
+        
+        // Criar mais alguns anúncios para os relatórios
+        DadosImovel dadosCasa2 = new DadosImovel();
+        dadosCasa2.setTitulo("Casa de Praia");
+        dadosCasa2.setArea(150.0);
+        dadosCasa2.setEndereco("Praia do Litoral, 789");
+        dadosCasa2.setQuartos(3);
+        dadosCasa2.setBanheiros(2);
+        dadosCasa2.setVagasGaragem(2);
+        dadosCasa2.setDescricao("Casa de praia com vista para o mar");
+        
+        PrototipoTemplateImovel fluxoCasa2 = new ClonarPrototipoGlobal("casa_padrao");
+        Imovel casa2 = fluxoCasa2.executarFluxo(usuario, "Casa2", dadosCasa2);
+        Anuncio anuncioCasa2 = new Anuncio("Casa de Praia", "Linda casa com vista para o mar", casa2, usuario, 580000.0);
+        repo.salvar(anuncioCasa2);
+        
+        // Obter todos os anúncios
+        List<Anuncio> todosAnuncios = repo.listarTodos();
+        
+        // Visitor 1: Exportar para JSON
+        System.out.println("📄 EXPORTANDO PARA JSON:");
+        System.out.println("─────────────────────────────────────");
+        AnuncioVisitor exportadorJSON = new ExportadorJSON();
+        for (Anuncio anuncio : todosAnuncios) {
+            anuncio.accept(exportadorJSON);
+        }
+        System.out.println(exportadorJSON.obterResultado());
+        
+        // Visitor 2: Exportar para PDF
+        System.out.println("\n\n📄 EXPORTANDO PARA PDF:");
+        System.out.println("─────────────────────────────────────");
+        AnuncioVisitor exportadorPDF = new ExportadorPDF();
+        for (Anuncio anuncio : todosAnuncios) {
+            anuncio.accept(exportadorPDF);
+        }
+        System.out.println(exportadorPDF.obterResultado());
+        
+        // Visitor 3: Gerar Relatório Estatístico
+        System.out.println("\n");
+        AnuncioVisitor relatorioEstatistico = new RelatorioEstatistico();
+        for (Anuncio anuncio : todosAnuncios) {
+            anuncio.accept(relatorioEstatistico);
+        }
+        System.out.println(relatorioEstatistico.obterResultado());
 
 
     }

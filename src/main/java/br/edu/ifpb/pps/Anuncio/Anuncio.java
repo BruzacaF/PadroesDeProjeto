@@ -44,6 +44,10 @@ public class Anuncio {
         observers.add(observer);
     }
 
+    public void removerObserver(NotificacaoObserver observer){
+        observers.remove(observer);
+    }
+
     public void setEstado(EstadoAnuncio novoEstado) {
         this.estado = novoEstado;
         this.estado.setAnuncioContext(this);

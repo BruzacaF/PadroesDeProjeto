@@ -35,10 +35,16 @@ public void accept(AnuncioVisitor visitor) {
 - **Saída:** String formatada em JSON válido
 - **Uso:** Integração com APIs, arquivos de configuração
 
-#### ExportadorPDF
-- **Propósito:** Gera relatório formatado simulando PDF
-- **Saída:** Texto formatado com cabeçalho e dados estruturados
-- **Uso:** Relatórios impressos, documentação
+#### ExportadorExcel
+- **Propósito:** Gera arquivo Excel real (.xlsx) com Apache POI
+- **Saída:** Arquivo Excel formatado com estilos e bordas
+- **Recursos:**
+  - Cabeçalho com fundo azul escuro e texto branco
+  - Formatação automática de preços em reais
+  - Bordas em todas as células
+  - Ajuste automático de largura das colunas
+  - Nome de arquivo com timestamp
+- **Uso:** Relatórios empresariais, análise de dados, importação em outras ferramentas
 
 #### RelatorioEstatistico
 - **Propósito:** Calcula métricas e estatísticas dos anúncios
@@ -80,6 +86,14 @@ for (Anuncio anuncio : anuncios) {
 }
 System.out.println(exportadorJSON.obterResultado());
 
+// Exportar para Excel (gera arquivo .xlsx)
+AnuncioVisitor exportadorExcel = new ExportadorExcel();
+for (Anuncio anuncio : anuncios) {
+    anuncio.accept(exportadorExcel);
+}
+System.out.println(exportadorExcel.obterResultado());
+// Arquivo gerado: relatorio_anuncios_YYYYMMDD_HHMMSS.xlsx
+
 // Gerar estatísticas
 AnuncioVisitor relatorioEstatistico = new RelatorioEstatistico();
 for (Anuncio anuncio : anuncios) {
@@ -92,7 +106,7 @@ System.out.println(relatorioEstatistico.obterResultado());
 
 Novos visitors podem ser facilmente adicionados para:
 - **ExportadorXML**: Exportação para formato XML
-- **ExportadorExcel**: Geração de planilhas Excel
+- **ExportadorPDF**: Geração de documentos PDF com iText ou PDFBox
 - **CalculadorComissao**: Cálculo de comissões por anúncio
 - **ValidadorDados**: Validação de consistência dos dados
 - **GeradorHTML**: Geração de páginas web estáticas
@@ -109,12 +123,33 @@ Novos visitors podem ser facilmente adicionados para:
               │
     ┌─────────┼─────────┐
     │         │         │
-ExportadorJSON  ExportadorPDF  RelatorioEstatistico
+ExportadorJSON  ExportadorExcel  RelatorioEstatistico
 
 
         Anuncio
     +accept(visitor)
 ```
+
+## Dependências
+
+### Apache POI
+Biblioteca utilizada para geração de arquivos Excel:
+```xml
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>5.2.5</version>
+</dependency>
+```
+
+## Estrutura do Arquivo Excel Gerado
+
+- **Cabeçalho:** Fundo azul escuro, texto branco, centralizado
+- **Colunas:** #, Título, Descrição, Preço (R$), Anunciante, Tipo Imóvel, Área (m²), Endereço, Quartos, Banheiros, Vagas
+- **Formatação de Preço:** Formato brasileiro (R$ #.##0,00)
+- **Bordas:** Todas as células têm bordas
+- **Largura:** Ajuste automático com espaço extra
+- **Nome do arquivo:** `relatorio_anuncios_YYYYMMDD_HHMMSS.xlsx`
 
 ## Conclusão
 

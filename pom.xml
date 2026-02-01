@@ -27,6 +27,13 @@
             <version>3.0.0</version>
         </dependency>
 
+        <!-- Apache POI para geração de Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -6,7 +6,7 @@ import br.edu.ifpb.pps.Anuncio.Decorator.FiltroBase;
 import br.edu.ifpb.pps.Anuncio.Decorator.Filtros.FiltroPreco;
 import br.edu.ifpb.pps.Anuncio.Visitor.AnuncioVisitor;
 import br.edu.ifpb.pps.Anuncio.Visitor.ExportadorJSON;
-import br.edu.ifpb.pps.Anuncio.Visitor.ExportadorPDF;
+import br.edu.ifpb.pps.Anuncio.Visitor.ExportadorExcel;
 import br.edu.ifpb.pps.Anuncio.Visitor.RelatorioEstatistico;
 import br.edu.ifpb.pps.Enums.ImovelTipo;
 import br.edu.ifpb.pps.Notificacao.NotificacaoObserver;
@@ -153,14 +153,14 @@ public class Main {
         }
         System.out.println(exportadorJSON.obterResultado());
         
-        // Visitor 2: Exportar para PDF
-        System.out.println("\n\n📄 EXPORTANDO PARA PDF:");
+        // Visitor 2: Exportar para Excel
+        System.out.println("\n\n📊 EXPORTANDO PARA EXCEL:");
         System.out.println("─────────────────────────────────────");
-        AnuncioVisitor exportadorPDF = new ExportadorPDF();
+        AnuncioVisitor exportadorExcel = new ExportadorExcel();
         for (Anuncio anuncio : todosAnuncios) {
-            anuncio.accept(exportadorPDF);
+            anuncio.accept(exportadorExcel);
         }
-        System.out.println(exportadorPDF.obterResultado());
+        System.out.println(exportadorExcel.obterResultado());
         
         // Visitor 3: Gerar Relatório Estatístico
         System.out.println("\n");

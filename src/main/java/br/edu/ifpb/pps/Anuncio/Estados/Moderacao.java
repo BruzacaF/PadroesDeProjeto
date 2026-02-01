@@ -8,6 +8,7 @@ import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 public class Moderacao extends EstadoAnuncio {
 
     public Moderacao(Anuncio anuncio) {
+        super.setEstadoAnuncioEnum(EstadoAnuncioEnum.EM_MODERACAO);
         super.setAnuncioContext(anuncio);
         checagemAutomatica();
     }

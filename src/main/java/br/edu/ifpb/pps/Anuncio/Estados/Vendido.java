@@ -4,6 +4,7 @@ import br.edu.ifpb.pps.Anuncio.Anuncio;
 import br.edu.ifpb.pps.Anuncio.EstadoAnuncio;
 
 public class Vendido implements EstadoAnuncio {
+    // Estado final - nenhuma transição é permitida
     public void enviarParaModeracao(Anuncio anuncio) {}
     public void aprovar(Anuncio anuncio) {}
     public void reprovar(Anuncio anuncio) {}

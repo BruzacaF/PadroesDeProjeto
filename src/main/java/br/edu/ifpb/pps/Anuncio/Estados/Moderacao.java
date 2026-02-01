@@ -8,16 +8,19 @@ import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 public class Moderacao implements EstadoAnuncio {
     @Override
     public void aprovar(Anuncio anuncio) {
+        // Aprovado: vai para Ativo (visível publicamente)
         anuncio.setEstado(new Ativo(), EstadoAnuncioEnum.ATIVO);
     }
 
     @Override
     public void reprovar(Anuncio anuncio) {
+        // Reprovado: vai para Suspenso
         anuncio.setEstado(new Suspenso(), EstadoAnuncioEnum.SUSPENSO);
     }
 
     @Override
     public void enviarParaModeracao(Anuncio anuncio) {
+        // Já está em moderação, pode reprocessar manualmente
         Moderador moderador = Moderador.getInstancia();
         boolean aprovado = moderador.moderarManual(anuncio);
 

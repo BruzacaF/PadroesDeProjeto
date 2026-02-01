@@ -7,6 +7,7 @@ import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 public class Suspenso implements EstadoAnuncio {
     @Override
     public void enviarParaModeracao(Anuncio anuncio) {
+        // Volta para Rascunho para permitir correções e nova submissão
         anuncio.setEstado(new Rascunho(), EstadoAnuncioEnum.RASCUNHO);
     }
 

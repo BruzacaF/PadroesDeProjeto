@@ -41,20 +41,19 @@ public class NotificacaoEmailStrategy implements NotificacaoStrategy {
 
     @Override
     public void enviarMensagem(String mensagem) {
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port", smtpPort);
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(emailRemetente, senhaRemetente);
-            }
-        });
-
         try {
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", smtpHost);
+            props.put("mail.smtp.port", smtpPort);
+
+            Session session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(emailRemetente, senhaRemetente);
+                }
+            });
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(emailRemetente));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinatario));
@@ -62,9 +61,9 @@ public class NotificacaoEmailStrategy implements NotificacaoStrategy {
             message.setText(mensagem);
 
             Transport.send(message);
-            System.out.println("Email enviado com sucesso de " + emailRemetente + " para " + emailDestinatario);
+            System.out.println("✅ Email enviado com sucesso de " + emailRemetente + " para " + emailDestinatario);
         } catch (MessagingException e) {
-            System.err.println("Erro ao enviar email para " + emailDestinatario + ": " + e.getMessage());
+            System.err.println("❌ Erro ao enviar email para " + emailDestinatario + ": " + e.getMessage());
         }
     }
 }

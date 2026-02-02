@@ -11,6 +11,6 @@ public class NotificacaoWhatsAppStrategy implements NotificacaoStrategy {
 
     @Override
     public void enviarMensagem(String mensagem) {
-        System.out.println("Enviando WhatsApp para " + numero + ": " + mensagem);
+        System.out.println("📱 Enviando WhatsApp para " + numero + ": " + mensagem);
     }
 }

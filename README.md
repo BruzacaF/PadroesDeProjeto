@@ -471,13 +471,27 @@ O projeto utiliza as seguintes bibliotecas (gerenciadas pelo Maven):
 
 ## 📊 Diagrama de Classes
 
-[Incluir aqui o diagrama de classes do projeto, destacando onde cada padrão foi aplicado]
+O diagrama abaixo apresenta a arquitetura completa do sistema MyHome, com **57 classes/interfaces/enums** organizadas em **11 pacotes**, destacando os **11 padrões de projeto** implementados:
 
-*Nota: O diagrama deve mostrar:*
-- Relacionamentos entre classes principais
-- Marcações indicando cada padrão de projeto
-- Hierarquias e interfaces
-- Multiplicidades
+![Diagrama de Classes - MyHome](v2.PPS_MyHome-DiagramaUML.svg)
+
+### 🎯 Destaques do Diagrama
+
+O diagrama mostra:
+- ✅ **11 Padrões de Projeto** identificados com estereótipos (<<Singleton>>, <<Builder>>, <<State>>, etc.)
+- ✅ **Relacionamentos completos** entre classes (herança, implementação, composição, agregação, associação)
+- ✅ **Hierarquias** de classes abstratas e interfaces
+- ✅ **Atributos e métodos** principais de cada classe
+- ✅ **Pacotes organizados** por contexto funcional
+- ✅ **Notas explicativas** para cada padrão de projeto
+- ✅ **Legenda** com contagem de padrões implementados
+
+### 📁 Arquivos do Diagrama
+
+- **Código fonte PlantUML**: [diagrama-classes.puml](diagrama-classes.puml)
+- **Imagem SVG**: [v2.PPS_MyHome-DiagramaUML.svg](v2.PPS_MyHome-DiagramaUML.svg)
+
+> **Dica:** Para editar o diagrama, abra o arquivo `.puml` no VS Code com a extensão PlantUML ou no IntelliJ IDEA com o plugin PlantUML.
 
 ---
 

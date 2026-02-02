@@ -1,0 +1,742 @@
+@startuml MyHome - Diagrama de Classes Completo
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam backgroundColor white
+
+title MyHome - Plataforma de Classificados de Imóveis\nDiagrama de Classes com Padrões de Projeto
+
+' ==================== PACOTE CONFIG ====================
+package "config" #DDDDDD {
+    class ConfiguracaoSistema <<Singleton>> {
+        - {static} instancia : ConfiguracaoSistema
+        - properties : Properties
+        --
+        - ConfiguracaoSistema()
+        + {static} getInstance() : ConfiguracaoSistema
+        + getPropriedade(chave : String) : String
+        + getListaPropriedade(chave : String) : List<String>
+    }
+}
+
+' ==================== PACOTE ENUMS ====================
+package "Enums" #E8F4F8 {
+    enum EstadoAnuncioEnum {
+        RASCUNHO
+        EM_MODERACAO
+        ATIVO
+        VENDIDO
+        SUSPENSO
+    }
+    
+    enum ImovelTipo {
+        CASA
+        APARTAMENTO
+        TERRENO
+        SALA_COMERCIAL
+        GALPAO
+        OUTRO
+    }
+    
+    enum TipoAnuncio {
+        VENDA
+        ALUGUEL
+        TEMPORADA
+    }
+    
+    enum UsuarioTipo {
+        ANUNCIANTE
+        USUARIO_COMUM
+        MODERADOR
+    }
+}
+
+' ==================== PACOTE USUARIO ====================
+package "Usuario" #FFF4E6 {
+    abstract class Usuario {
+        # nome : String
+        # tipo : UsuarioTipo
+        --
+        + Usuario(nome : String, tipo : UsuarioTipo)
+        + getNome() : String
+        + getTipo() : UsuarioTipo
+    }
+    
+    class Anunciante {
+        - catalogoPrototipos : CatalogoPrototiposImovel
+        --
+        + Anunciante(nome : String)
+        + getCatalogoPrototipos() : CatalogoPrototiposImovel
+        + criarPrototipo(nome : String, prototipo : Imovel) : void
+    }
+    
+    class UsuarioComum {
+        + UsuarioComum(nome : String)
+    }
+    
+    class Moderador {
+        + Moderador(nome : String)
+    }
+}
+
+' ==================== PACOTE FACTORY ====================
+package "Factory" #E1F5E1 {
+    class UsuarioFactory <<Factory Method>> {
+        + {static} criarUsuario(nome : String, tipo : UsuarioTipo) : Usuario
+    }
+}
+
+' ==================== PACOTE LOGGER ====================
+package "Logger" #FFE4E1 {
+    class LoggerAnuncio <<Singleton>> {
+        - {static} instancia : LoggerAnuncio
+        - {static} DIRETORIO_LOG : String
+        - {static} ARQUIVO_LOG : String
+        - logger : Logger
+        --
+        - LoggerAnuncio()
+        + {static} getInstance() : LoggerAnuncio
+        + {static} log(mensagem : String) : void
+        + {static} logErro(mensagem : String, erro : Throwable) : void
+    }
+}
+
+' ==================== PACOTE IMOVEL ====================
+package "imovel" #FFF0F5 {
+    interface PrototypeImovel <<Prototype>> {
+        + clonar() : Imovel
+    }
+    
+    abstract class Imovel implements PrototypeImovel {
+        # tipo : ImovelTipo
+        # preco : double
+        # titulo : String
+        # descricao : String
+        # area : double
+        # endereco : String
+        # quartos : int
+        # banheiros : int
+        # vagasGaragem : int
+        # proprietario : Anunciante
+        --
+        + Imovel()
+        + Imovel(outro : Imovel)
+        + clonar() : Imovel
+        + exibirDetalhes() : void {abstract}
+        + toString() : String
+        ' + getters/setters
+    }
+    
+    class Casa {
+        - areaTerreno : double
+        - numeroPavimentos : int
+        --
+        + Casa()
+        + Casa(outra : Casa)
+        + clonar() : Imovel
+        + exibirDetalhes() : void
+    }
+    
+    class Apartamento {
+        - andar : int
+        - elevador : boolean
+        - taxaCondominio : double
+        --
+        + Apartamento()
+        + Apartamento(outro : Apartamento)
+        + clonar() : Imovel
+        + exibirDetalhes() : void
+    }
+    
+    class DadosImovel <<DTO>> {
+        - titulo : String
+        - descricao : String
+        - preco : double
+        - area : double
+        - endereco : String
+        - quartos : int
+        - banheiros : int
+        - vagasGaragem : int
+        - andar : Integer
+        - elevador : Boolean
+        - taxaCondominio : Double
+        - areaTerreno : Double
+        --
+        ' + getters/setters
+    }
+    
+    class CatalogoPrototiposImovel {
+        - prototipos : Map<String, Imovel>
+        --
+        + adicionarPrototipo(nome : String, prototipo : Imovel) : void
+        + obterPrototipo(nome : String) : Imovel
+        + listarPrototipos() : Set<String>
+        + clonarPrototipo(nome : String) : Imovel
+    }
+    
+    class CatalogoGlobalPrototipos <<Singleton>> {
+        - {static} instancia : CatalogoGlobalPrototipos
+        - catalogo : CatalogoPrototiposImovel
+        --
+        - CatalogoGlobalPrototipos()
+        + {static} getInstance() : CatalogoGlobalPrototipos
+        + obterPrototipo(nome : String) : Imovel
+        + clonarPrototipo(nome : String) : Imovel
+        + adicionarPrototipo(nome : String, prototipo : Imovel) : void
+    }
+}
+
+' ==================== PACOTE IMOVEL.BUILDER ====================
+package "imovel.builder" #E8F5E9 {
+    interface ImovelBuilder <<Builder>> {
+        + reset() : void
+        + definirDadosBasicos(dados : DadosImovel, proprietario : Anunciante) : void
+        + definirCaracteristicas(dados : DadosImovel) : void
+        + definirTipo(tipo : ImovelTipo) : void
+        + construir() : Imovel
+    }
+    
+    class ImovelDirector {
+        - builder : ImovelBuilder
+        --
+        + ImovelDirector(builder : ImovelBuilder)
+        + construirImovel(dados : DadosImovel, proprietario : Anunciante, tipo : ImovelTipo) : Imovel
+    }
+    
+    class CasaBuilder implements ImovelBuilder {
+        - casa : Casa
+        --
+        + CasaBuilder()
+        + reset() : void
+        + definirDadosBasicos(dados : DadosImovel, proprietario : Anunciante) : void
+        + definirCaracteristicas(dados : DadosImovel) : void
+        + definirTipo(tipo : ImovelTipo) : void
+        + construir() : Imovel
+    }
+    
+    class ApartamentoBuilder implements ImovelBuilder {
+        - apartamento : Apartamento
+        --
+        + ApartamentoBuilder()
+        + reset() : void
+        + definirDadosBasicos(dados : DadosImovel, proprietario : Anunciante) : void
+        + definirCaracteristicas(dados : DadosImovel) : void
+        + definirTipo(tipo : ImovelTipo) : void
+        + construir() : Imovel
+    }
+}
+
+' ==================== PACOTE IMOVEL.TEMPLATEMETHOD ====================
+package "imovel.templateMethod" #FFF3E0 {
+    abstract class PrototipoTemplateImovel <<Template Method>> {
+        + executarFluxo(usuario : Anunciante, nome : String, dados : DadosImovel) : Imovel
+        # criarOuClonarImovel(dados : DadosImovel, usuario : Anunciante) : Imovel {abstract}
+        # validarUsuario(usuario : Anunciante) : void
+        # validarNome(nome : String) : void
+        # registrarNoCatalogo(usuario : Anunciante, nome : String, imovel : Imovel) : void
+        # aplicarDadosExtras(imovel : Imovel, dados : DadosImovel, usuario : Anunciante) : void
+    }
+    
+    class CriarPrototipoDoZero {
+        - tipo : ImovelTipo
+        --
+        + CriarPrototipoDoZero(tipo : ImovelTipo)
+        # criarOuClonarImovel(dados : DadosImovel, usuario : Anunciante) : Imovel
+    }
+    
+    class ClonarPrototipoGlobal {
+        - nomePrototipoGlobal : String
+        --
+        + ClonarPrototipoGlobal(nomePrototipoGlobal : String)
+        # criarOuClonarImovel(dados : DadosImovel, usuario : Anunciante) : Imovel
+        # aplicarDadosExtras(imovel : Imovel, dados : DadosImovel, usuario : Anunciante) : void
+    }
+}
+
+' ==================== PACOTE ANUNCIO ====================
+package "Anuncio" #E3F2FD {
+    class Anuncio {
+        - id : String
+        - imovel : Imovel
+        - anunciante : Anunciante
+        - dataPublicacao : String
+        - tipoAnuncio : TipoAnuncio
+        - estadoAtual : EstadoAnuncio
+        - contadorMudancas : int
+        - observers : List<NotificacaoObserver>
+        --
+        + Anuncio(id : String, imovel : Imovel, anunciante : Anunciante, tipoAnuncio : TipoAnuncio)
+        + adicionarObserver(observer : NotificacaoObserver) : void
+        + removerObserver(observer : NotificacaoObserver) : void
+        + notificarObservers(mensagem : String) : void
+        + setEstado(novoEstado : EstadoAnuncio) : void
+        + publicar() : void
+        + aprovar() : void
+        + reprovar() : void
+        + vender() : void
+        + suspender() : void
+        + aceitarVisitor(visitor : AnuncioVisitor) : void
+        + toString() : String
+        ' + getters/setters
+    }
+    
+    abstract class EstadoAnuncio <<State>> {
+        # anuncioContext : Anuncio
+        # estadoAtual : EstadoAnuncioEnum
+        --
+        # setAnuncioContext(anuncio : Anuncio) : void
+        # setEstadoAnuncioEnum(estado : EstadoAnuncioEnum) : void
+        + getEstadoAtual() : EstadoAnuncioEnum
+        # aprovar() : void {abstract}
+        # reprovar() : void {abstract}
+        # publicar() : void {abstract}
+        # vender() : void {abstract}
+        # suspender() : void {abstract}
+    }
+    
+    class Rascunho extends EstadoAnuncio {
+        + Rascunho()
+        # publicar() : void
+    }
+    
+    class Moderacao extends EstadoAnuncio {
+        + Moderacao()
+        # aprovar() : void
+        # reprovar() : void
+        + moderar(anuncio : Anuncio) : void
+    }
+    
+    class Ativo extends EstadoAnuncio {
+        + Ativo()
+        # vender() : void
+        # suspender() : void
+    }
+    
+    class Vendido extends EstadoAnuncio {
+        + Vendido()
+    }
+    
+    class Suspenso extends EstadoAnuncio {
+        + Suspenso()
+    }
+    
+    class Moderador_Anuncio <<Singleton>> {
+        - {static} instancia : Moderador
+        - cadeiaModeracao : ModeracaoHandler
+        --
+        - Moderador()
+        + {static} getInstance() : Moderador
+        + moderar(anuncio : Anuncio) : boolean
+        + reprovar(anuncio : Anuncio) : void
+    }
+}
+
+' ==================== PACOTE ANUNCIO.COR ====================
+package "Anuncio.CoR" #FFF9C4 {
+    interface ModeracaoHandler <<Chain of Responsibility>> {
+        + processar(anuncio : Anuncio) : boolean
+    }
+    
+    abstract class AbstractModeracaoHandler implements ModeracaoHandler {
+        # proximo : ModeracaoHandler
+        --
+        + setProximo(handler : ModeracaoHandler) : void
+        + processar(anuncio : Anuncio) : boolean
+        # process(anuncio : Anuncio) : boolean {abstract}
+    }
+    
+    class FiltroTermosProibidosHandler extends AbstractModeracaoHandler {
+        # process(anuncio : Anuncio) : boolean
+    }
+    
+    class FiltroPrecoValidoHandler extends AbstractModeracaoHandler {
+        # process(anuncio : Anuncio) : boolean
+    }
+}
+
+' ==================== PACOTE ANUNCIO.DECORATOR ====================
+package "Anuncio.Decorator" #F3E5F5 {
+    interface Filtro <<Decorator>> {
+        + filtrar(anuncio : Anuncio) : boolean
+    }
+    
+    class FiltroBase implements Filtro {
+        + filtrar(anuncio : Anuncio) : boolean
+    }
+    
+    abstract class FiltroDecorator implements Filtro {
+        # filtroInterno : Filtro
+        --
+        + FiltroDecorator(filtroInterno : Filtro)
+        + filtrar(anuncio : Anuncio) : boolean
+        # aplicarFiltro(anuncio : Anuncio) : boolean {abstract}
+    }
+    
+    class FiltroPreco extends FiltroDecorator {
+        - precoMin : double
+        - precoMax : double
+        --
+        + FiltroPreco(filtroInterno : Filtro, precoMin : double, precoMax : double)
+        # aplicarFiltro(anuncio : Anuncio) : boolean
+    }
+}
+
+' ==================== PACOTE ANUNCIO.VISITOR ====================
+package "Anuncio.Visitor" #E8EAF6 {
+    interface AnuncioVisitor <<Visitor>> {
+        + iniciar() : void
+        + visitar(anuncio : Anuncio) : void
+        + finalizar() : void
+    }
+    
+    class ExportadorJSON implements AnuncioVisitor {
+        - json : StringBuilder
+        --
+        + iniciar() : void
+        + visitar(anuncio : Anuncio) : void
+        + finalizar() : void
+        + getJSON() : String
+    }
+    
+    class ExportadorExcel implements AnuncioVisitor {
+        - workbook : Workbook
+        - sheet : Sheet
+        - linhaAtual : int
+        --
+        + ExportadorExcel()
+        + iniciar() : void
+        + visitar(anuncio : Anuncio) : void
+        + finalizar() : void
+        + salvarArquivo() : void
+    }
+    
+    class RelatorioEstatistico implements AnuncioVisitor {
+        - totalAnuncios : int
+        - totalVendidos : int
+        - totalAtivos : int
+        - totalSuspensos : int
+        - totalModerados : int
+        - somaPrecos : double
+        - contadorPrecos : int
+        --
+        + iniciar() : void
+        + visitar(anuncio : Anuncio) : void
+        + finalizar() : void
+    }
+}
+
+' ==================== PACOTE NOTIFICACAO ====================
+package "Notificacao" #C8E6C9 {
+    interface NotificacaoStrategy <<Strategy>> {
+        + enviarNotificacao(destinatario : String, mensagem : String) : void
+    }
+    
+    abstract class NotificacaoObserver <<Observer>> {
+        # strategy : NotificacaoStrategy
+        --
+        + NotificacaoObserver(strategy : NotificacaoStrategy)
+        + atualizar(mensagem : String) : void {abstract}
+        + definirStrategy(strategy : NotificacaoStrategy) : void
+    }
+    
+    enum TipoNotificacao {
+        EMAIL
+        TELEGRAM
+        WHATSAPP
+        SMS
+    }
+    
+    class NotificacaoEmailStrategy implements NotificacaoStrategy {
+        - SMTP_HOST : String
+        - SMTP_PORT : String
+        - EMAIL_REMETENTE : String
+        - EMAIL_SENHA : String
+        - properties : Properties
+        --
+        + NotificacaoEmailStrategy()
+        - configurarSMTP() : void
+        + enviarNotificacao(destinatario : String, mensagem : String) : void
+    }
+    
+    class NotificacaoWhatsAppStrategy implements NotificacaoStrategy {
+        - apiUrl : String
+        --
+        + NotificacaoWhatsAppStrategy(apiUrl : String)
+        + enviarNotificacao(destinatario : String, mensagem : String) : void
+    }
+    
+    class NotificacaoTelegramStrategy implements NotificacaoStrategy {
+        - botToken : String
+        --
+        + NotificacaoTelegramStrategy(botToken : String)
+        + enviarNotificacao(destinatario : String, mensagem : String) : void
+    }
+}
+
+' ==================== PACOTE REPOSITORY ====================
+package "repository" #FFEBEE {
+    interface "Repository<T, ID>" <<Repository>> {
+        + salvar(entity : T) : void
+        + buscarPorId(id : ID) : T
+        + listarTodos() : List<T>
+        + deletar(id : ID) : void
+    }
+    
+    abstract class "InMemoryRepository<T, ID>" {
+        # banco : Map<ID, T>
+        --
+        # getId(entity : T) : ID {abstract}
+        + salvar(entity : T) : void
+        + buscarPorId(id : ID) : T
+        + listarTodos() : List<T>
+        + deletar(id : ID) : void
+    }
+    
+    class AnuncioRepository <<Singleton>> {
+        - {static} instancia : AnuncioRepository
+        --
+        - AnuncioRepository()
+        + {static} getInstance() : AnuncioRepository
+        # getId(anuncio : Anuncio) : String
+    }
+    
+    class UsuarioRepository <<Singleton>> {
+        - {static} instancia : UsuarioRepository
+        --
+        - UsuarioRepository()
+        + {static} getInstance() : UsuarioRepository
+        # getId(usuario : Usuario) : String
+    }
+}
+
+' ==================== PACOTE SUPORTE ====================
+package "Suporte" #B2DFDB {
+    class MotorBusca <<Singleton>> {
+        - {static} instancia : MotorBusca
+        --
+        - MotorBusca()
+        + {static} getInstance() : MotorBusca
+        + buscar(filtro : Filtro) : List<Anuncio>
+    }
+}
+
+' ==================== PACOTE MAIN ====================
+class Main {
+    + {static} main(args : String[]) : void
+}
+
+' ==================== RELACIONAMENTOS ====================
+
+' Usuario
+Usuario <|-- Anunciante
+Usuario <|-- UsuarioComum
+Usuario <|-- Moderador
+Usuario --> UsuarioTipo
+UsuarioFactory ..> Usuario : <<creates>>
+UsuarioFactory --> UsuarioTipo
+
+' Imovel
+Imovel ..|> PrototypeImovel
+Imovel <|-- Casa
+Imovel <|-- Apartamento
+Imovel --> ImovelTipo
+Imovel --> Anunciante
+Anunciante *-- CatalogoPrototiposImovel
+CatalogoPrototiposImovel o--> Imovel
+CatalogoGlobalPrototipos *-- CatalogoPrototiposImovel
+
+' Builder
+ImovelBuilder <|.. CasaBuilder
+ImovelBuilder <|.. ApartamentoBuilder
+ImovelDirector o--> ImovelBuilder
+ImovelBuilder ..> Imovel : <<creates>>
+ImovelBuilder --> DadosImovel
+ImovelBuilder --> Anunciante
+CasaBuilder ..> Casa : <<creates>>
+ApartamentoBuilder ..> Apartamento : <<creates>>
+
+' Template Method
+PrototipoTemplateImovel <|-- CriarPrototipoDoZero
+PrototipoTemplateImovel <|-- ClonarPrototipoGlobal
+PrototipoTemplateImovel --> DadosImovel
+PrototipoTemplateImovel --> Anunciante
+PrototipoTemplateImovel ..> Imovel : <<creates>>
+CriarPrototipoDoZero --> ImovelTipo
+CriarPrototipoDoZero --> ImovelBuilder
+CriarPrototipoDoZero --> ImovelDirector
+ClonarPrototipoGlobal --> CatalogoGlobalPrototipos
+
+' Anuncio
+Anuncio *-- Imovel
+Anuncio --> Anunciante
+Anuncio --> TipoAnuncio
+Anuncio o--> EstadoAnuncio
+Anuncio o--> NotificacaoObserver
+Anuncio --> LoggerAnuncio
+Anuncio --> AnuncioVisitor
+
+' State
+EstadoAnuncio <|-- Rascunho
+EstadoAnuncio <|-- Moderacao
+EstadoAnuncio <|-- Ativo
+EstadoAnuncio <|-- Vendido
+EstadoAnuncio <|-- Suspenso
+EstadoAnuncio --> EstadoAnuncioEnum
+EstadoAnuncio --> Anuncio
+Moderacao --> Moderador_Anuncio
+
+' Chain of Responsibility
+ModeracaoHandler <|.. AbstractModeracaoHandler
+AbstractModeracaoHandler <|-- FiltroTermosProibidosHandler
+AbstractModeracaoHandler <|-- FiltroPrecoValidoHandler
+AbstractModeracaoHandler o--> ModeracaoHandler
+Moderador_Anuncio o--> ModeracaoHandler
+FiltroTermosProibidosHandler --> ConfiguracaoSistema
+
+' Decorator
+Filtro <|.. FiltroBase
+Filtro <|.. FiltroDecorator
+FiltroDecorator <|-- FiltroPreco
+FiltroDecorator o--> Filtro
+Filtro --> Anuncio
+
+' Visitor
+AnuncioVisitor <|.. ExportadorJSON
+AnuncioVisitor <|.. ExportadorExcel
+AnuncioVisitor <|.. RelatorioEstatistico
+
+' Observer & Strategy
+NotificacaoStrategy <|.. NotificacaoEmailStrategy
+NotificacaoStrategy <|.. NotificacaoWhatsAppStrategy
+NotificacaoStrategy <|.. NotificacaoTelegramStrategy
+NotificacaoObserver o--> NotificacaoStrategy
+
+' Repository
+"Repository<T, ID>" <|.. "InMemoryRepository<T, ID>"
+"InMemoryRepository<T, ID>" <|-- AnuncioRepository
+"InMemoryRepository<T, ID>" <|-- UsuarioRepository
+AnuncioRepository --> Anuncio
+UsuarioRepository --> Usuario
+
+' Suporte
+MotorBusca --> Filtro
+MotorBusca --> AnuncioRepository
+
+' Main usa tudo
+Main ..> Anunciante
+Main ..> Anuncio
+Main ..> MotorBusca
+Main ..> NotificacaoObserver
+Main ..> AnuncioVisitor
+
+' ==================== NOTAS EXPLICATIVAS ====================
+note top of ConfiguracaoSistema
+  **Singleton**
+  Carrega e mantém as 
+  configurações do sistema
+  (config.properties)
+end note
+
+note top of LoggerAnuncio
+  **Singleton**
+  Registra todas as mudanças
+  de estado dos anúncios
+  em arquivo de log
+end note
+
+note top of UsuarioFactory
+  **Factory Method**
+  Cria diferentes tipos
+  de usuários baseado
+  no UsuarioTipo
+end note
+
+note top of ImovelBuilder
+  **Builder Pattern**
+  Constrói imóveis complexos
+  passo a passo com
+  diferentes configurações
+end note
+
+note top of PrototypeImovel
+  **Prototype Pattern**
+  Permite clonar imóveis
+  existentes ao invés de
+  criar do zero
+end note
+
+note top of PrototipoTemplateImovel
+  **Template Method**
+  Define o esqueleto do
+  algoritmo de criação/clonagem
+  de imóveis
+end note
+
+note top of EstadoAnuncio
+  **State Pattern**
+  Gerencia o ciclo de vida
+  do anúncio:
+  Rascunho → Moderação → Ativo
+  → Vendido/Suspenso
+end note
+
+note top of ModeracaoHandler
+  **Chain of Responsibility**
+  Processa validações em cadeia:
+  termos proibidos → preço válido
+  → outros filtros
+end note
+
+note top of Filtro
+  **Decorator Pattern**
+  Adiciona filtros de busca
+  dinamicamente (preço,
+  localização, área, etc.)
+end note
+
+note top of AnuncioVisitor
+  **Visitor Pattern**
+  Adiciona operações aos anúncios
+  sem modificar suas classes:
+  JSON, Excel, Estatísticas
+end note
+
+note top of NotificacaoObserver
+  **Observer Pattern**
+  Notifica automaticamente
+  quando anúncios mudam
+  de estado
+end note
+
+note top of NotificacaoStrategy
+  **Strategy Pattern**
+  Define canais intercambiáveis
+  de notificação:
+  Email, WhatsApp, Telegram
+end note
+
+note top of "Repository<T, ID>"
+  **Repository Pattern**
+  Encapsula acesso
+  aos dados de forma
+  agnóstica à persistência
+end note
+
+legend right
+  |= Padrão |= Quantidade |
+  | Singleton | 7 |
+  | Factory Method | 1 |
+  | Builder | 3 |
+  | Prototype | 3 |
+  | Template Method | 3 |
+  | State | 6 |
+  | Chain of Responsibility | 4 |
+  | Decorator | 4 |
+  | Visitor | 4 |
+  | Observer | 1 |
+  | Strategy | 4 |
+  | Repository | 4 |
+  |= **Total** |= **11 Padrões** |
+endlegend
+
+@enduml

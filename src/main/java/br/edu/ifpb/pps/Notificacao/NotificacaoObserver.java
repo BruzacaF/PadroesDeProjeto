@@ -10,8 +10,12 @@ public abstract class NotificacaoObserver {
     private Map<TipoNotificacao, NotificacaoStrategy> notificadorStrategies = new HashMap<>();
 
     public void notificar(String mensagem) {
-        for (NotificacaoStrategy strategy : notificadorStrategies.values()) {
-            strategy.enviarMensagem(mensagem);
+        for (Map.Entry<TipoNotificacao, NotificacaoStrategy> entry : notificadorStrategies.entrySet()) {
+            try {
+                entry.getValue().enviarMensagem(mensagem);
+            } catch (Exception e){
+                System.err.println("❌ Erro ao enviar mensagem via " + entry.getKey() + ": " + e.getMessage());
+            }
         }
     }
 

@@ -31,6 +31,9 @@ public class NotificacaoEmailStrategy implements NotificacaoStrategy {
             
             this.emailRemetente = dotenv.get("EMAIL_REMETENTE");
             this.senhaRemetente = dotenv.get("EMAIL_SENHA");
+            if (emailRemetente == null || senhaRemetente == null){
+                throw new RuntimeException("Email e senha destinatário ausentes! Adicione-os no .env");
+            }
             
             this.smtpHost = config.getProperty("email.smtp.host");
             this.smtpPort = config.getProperty("email.smtp.port");

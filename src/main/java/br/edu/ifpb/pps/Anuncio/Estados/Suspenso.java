@@ -4,15 +4,16 @@ import br.edu.ifpb.pps.Anuncio.Anuncio;
 import br.edu.ifpb.pps.Anuncio.EstadoAnuncio;
 import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 
-public class Suspenso implements EstadoAnuncio {
-    @Override
-    public void enviarParaModeracao(Anuncio anuncio) {
-        anuncio.setEstado(new Rascunho(), EstadoAnuncioEnum.RASCUNHO);
+public class Suspenso extends EstadoAnuncio {
+
+    public Suspenso() {
+        super.setEstadoAnuncioEnum(EstadoAnuncioEnum.SUSPENSO);
+        super.anuncioContext.setEstado(new Rascunho());
     }
 
-    public void aprovar(Anuncio anuncio) {}
-    public void reprovar(Anuncio anuncio) {}
-    public void publicar(Anuncio anuncio) {}
-    public void vender(Anuncio anuncio) {}
-    public void suspender(Anuncio anuncio) {}
+    public void aprovar() {}
+    public void reprovar() {}
+    public void publicar() {}
+    public void vender() {}
+    public void suspender() {}
 }

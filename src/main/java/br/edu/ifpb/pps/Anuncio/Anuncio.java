@@ -1,6 +1,7 @@
 package br.edu.ifpb.pps.Anuncio;
 
 import br.edu.ifpb.pps.Anuncio.Estados.Rascunho;
+import br.edu.ifpb.pps.Anuncio.Visitor.AnuncioVisitor;
 import br.edu.ifpb.pps.Enums.EstadoAnuncioEnum;
 
 import br.edu.ifpb.pps.Logger.LoggerAnuncio;
@@ -21,7 +22,6 @@ public class Anuncio {
     private Imovel imovel;
     private Anunciante anunciante;
     private EstadoAnuncio estado;
-    private EstadoAnuncioEnum estadoEnum;
     private List<NotificacaoObserver> observers = new ArrayList<>();
 
     public Anuncio(String titulo, String descricao, Imovel imovel, Anunciante anunciante, Double preco) {
@@ -31,8 +31,8 @@ public class Anuncio {
         this.imagens = new ArrayList<>();
         this.imovel = imovel;
         this.anunciante = anunciante;
-        this.estado = new Rascunho(); // estado inicial
-        this.estadoEnum = EstadoAnuncioEnum.RASCUNHO;
+        this.estado = new Rascunho();
+        this.estado.setAnuncioContext(this);
     }
 
     public String getTitulo() { return titulo; }
@@ -40,35 +40,42 @@ public class Anuncio {
     public Imovel getImovel() { return imovel; }
     public Double getPreco() { return preco; }
     public Anunciante getAnunciante() { return anunciante; }
-    public EstadoAnuncioEnum getEstadoEnum() { return estadoEnum; }
+    public List<String> getImagens() { return new ArrayList<>(imagens); }
 
     public void adicionarObserver(NotificacaoObserver observer) {
         observers.add(observer);
     }
 
-    public void setEstado(EstadoAnuncio novoEstado, EstadoAnuncioEnum novoEnum) {
-        this.estado = novoEstado;
-        this.estadoEnum = novoEnum;
-        notificar("Estado do anúncio '" + titulo + "' alterado para: " + novoEnum);
-        LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + novoEnum);
+    public void removerObserver(NotificacaoObserver observer){
+        observers.remove(observer);
     }
 
-    private void notificar(String mensagem) {
+    public void setEstado(EstadoAnuncio novoEstado) {
+        this.estado = novoEstado;
+        this.estado.setAnuncioContext(this);
+        notificarTodos("Estado do anúncio '" + titulo + "' alterado para: " + estado.getEstadoAnuncioEnum());
+        LoggerAnuncio.registrar("Anúncio '" + titulo + "' mudou para estado: " + estado.getEstadoAnuncioEnum());
+    }
+
+    private void notificarTodos(String mensagem) {
         for (NotificacaoObserver obs : observers) {
-            obs.atualizar(mensagem);
+            obs.notificar(mensagem);
         }
     }
 
     // Delegação para o estado atual
-    public void enviarParaModeracao() { estado.enviarParaModeracao(this); }
-    public void aprovar() { estado.aprovar(this); }
-    public void reprovar() { estado.reprovar(this); }
-    public void publicar() { estado.publicar(this); }
-    public void vender() { estado.vender(this); }
-    public void suspender() { estado.suspender(this); }
+    public void aprovar() { estado.aprovar(); }
+    public void reprovar() { estado.reprovar(); }
+    public void publicar() { estado.publicar(); }
+    public void vender() { estado.vender(); }
+    public void suspender() { estado.suspender(); }
 
     public void adicionarFoto(String image) {
         this.imagens.add(image);
+    }
+
+    public void accept(AnuncioVisitor visitor) {
+        visitor.visitar(this);
     }
 
 
@@ -77,7 +84,7 @@ public class Anuncio {
         System.out.println("Título: " + titulo);
         System.out.println("Descrição: " + descricao);
         System.out.println("Preço: " + preco);
-        System.out.println("Estado atual: " + estadoEnum);
+        System.out.println("Estado atual: " + estado.getEstadoAnuncioEnum());
         System.out.println("Anunciante: " + anunciante.getNome()); // supondo que Anunciante tenha getNome()
 
         System.out.println("\n--- Imóvel ---");
